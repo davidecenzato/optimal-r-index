@@ -1,0 +1,9 @@
+[submodule "external/optimalBWT"]
+	path = external/optimalBWT
+	url = https://github.com/davidecenzato/optimalBWT.git
+[submodule "external/r-index"]
+	path = external/r-index
+	url = https://github.com/nicolaprezza/r-index
+[submodule "external/BCR_LCP_GSA"]
+	path = external/BCR_LCP_GSA
+	url = https://github.com/giovannarosone/BCR_LCP_GSA.git
