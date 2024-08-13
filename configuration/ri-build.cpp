@@ -136,9 +136,8 @@ int main(int argc, char** argv){
 
 		auto idx = r_index<>(input_file, concat);
 		index_size = idx.serialize(out);
-
+		
 	}
-
 
 	auto t2 = high_resolution_clock::now();
 	ulint total = duration_cast<duration<double, std::ratio<1>>>(t2 - t1).count();

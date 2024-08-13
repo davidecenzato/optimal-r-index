@@ -12,14 +12,15 @@ BCR_LCP_GSA_exe = base_path + "/external/BCR_LCP_GSA/BCR_LCP_GSA"
 r_index_exe = base_path + "/external/r-index/build/ri-build"
 r_index_space_exe = base_path + "/external/r-index/build/ri-space"
 optbwt_exe = base_path + "/external/optimalBWT/optimalBWT.py"
+bigbwt_exe = base_path + "/external/Big-BWT/bigbwt"
 remap_exe = base_path + "/remap"
 
 def main():
     parser = argparse.ArgumentParser(description=Description, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('input_folder', nargs='?', help='a folder containing fasta files', type=str)
-    parser.add_argument('--multi',  help='compute multidollarBWT r-index (def. False)',action='store_true')
-    parser.add_argument('--opt',  help='compute optimalBWT r-index (def. False)',action='store_true')
-    parser.add_argument('--concat',  help='compute concatBWT r-index (def. False)',action='store_true')
+    parser.add_argument('--multi',  help='compute multidollarBWT r-index size (def. False)',action='store_true')
+    parser.add_argument('--opt',  help='compute optimalBWT r-index size (def. False)',action='store_true')
+    parser.add_argument('--concat',  help='compute concatBWT r-index size (def. False)',action='store_true')
     args = parser.parse_args()
 
     with open(args.input_folder+".csv","w+") as res:
@@ -31,21 +32,23 @@ def main():
 
         for D in dataset_list:
 
-            if D == ".DS_Store":
+            if D.split(".")[-1] != "fasta":
                 continue
+
             args.input = args.input_folder + "/" + D
             command = "grep -v >"
             with open(args.input,"rb") as a:
                 ps = subprocess.Popen(command.split(), stdin=a, stdout=subprocess.PIPE)
             command = "wc -c"
             output = subprocess.check_output(command.split(), stdin=ps.stdout)
-            data_size = str(output).split("\\n")[0].split("      ")[1]
+            data_size = str(int(output))
             print("DATA SIZE=",data_size)
 
             command = "wc -l"
             with open(args.input,"rb") as a:
                 output = subprocess.check_output(command.split(), stdin=a)
-            no_seq = int(str(output).split("\\n")[0].split("      ")[1])
+            #no_seq = int(str(output).split("\\n")[0].split("      ")[1])
+            no_seq = int(output)
             if no_seq % 2 != 0:
                 no_seq += 1
             no_seq /= 2
@@ -115,9 +118,12 @@ def main():
                 with open(args.input, 'rb', 0) as a, open(args.input+".flat", 'w') as b:
                     rc = subprocess.call(command.split(), stdin=a, stdout=b)
 
+                command = "python3 {exe} -w 10 -p 50 -s -e {input}".format(exe = bigbwt_exe, input = args.input+".flat")
+                if not execute_command(command):
+                    return
+
                 command = "{exe} {input}".format(exe = r_index_exe, input = args.input+".flat")
                 print("###########",command)
-
                 process = subprocess.check_output(command.split())
                 process = str(process)
                 process = process.split("\\n")
@@ -127,6 +133,10 @@ def main():
 
                 os.remove(args.input+".flat")
                 os.remove(args.input+".flat.ri")
+                os.remove(args.input+".flat.ssa")
+                os.remove(args.input+".flat.log")
+                os.remove(args.input+".flat.esa")
+                os.remove(args.input+".flat.bwt")
 
 
 # execute command: return True is everything OK, False otherwise

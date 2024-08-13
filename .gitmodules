@@ -7,3 +7,6 @@
 [submodule "external/BCR_LCP_GSA"]
 	path = external/BCR_LCP_GSA
 	url = https://github.com/giovannarosone/BCR_LCP_GSA.git
+[submodule "external/Big-BWT"]
+	path = external/Big-BWT
+	url = https://github.com/alshai/Big-BWT.git

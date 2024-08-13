@@ -1,6 +1,6 @@
 /* ******************************************************************
- * invertebwt
- * Simple function that given the eBWT of text and its starting positions S, invert the eBWT to the original text.
+ * A simple function that takes in input the optimal BWT and writes the 
+ * original string collections in Bentely et al. order.
  * ****************************************************************** */
 
 #include <stdio.h>
@@ -19,53 +19,14 @@ using namespace std;
 
 const int alph_size = 128;
 
-/*
-void inverteBWT(std::vector<uint8_t> EBWT, std::vector<uint64_t> ST_P, string I, int alph_size){
-    // Function that inverse the eBWT of a int string using sdsl wavelet trees
-    string wt_filename = I + std::string(".ebwt");
-    cout << "Building the Wavelet tree of the eBWT." << endl;
-    sdsl::wt_blcd<> wt; sdsl::construct(wt,wt_filename,1);
-    vector<uint32_t> C(alph_size+1,0); vector<uint32_t> bkt(alph_size,0);
-    cout << "Building the C vector of the eBWT." << endl;
-    for(int i=0;i<EBWT.size();i++){ bkt[EBWT[i]]++; }
-    for(int i=1;i<C.size();i++){ C[i]=C[i-1]+bkt[i-1]; }
-    
-    string tmp_filename = I + std::string(".rfasta");
-    FILE* fp = fopen(tmp_filename.c_str(), "w+");
-
-    //cout << "Inverting " << ST_P.size() << " sequences." << endl;
-    size_t inverted = 0;
-    for(size_t i=0;i<ST_P.size();++i){
-        std::vector<uint8_t> RP;  
-        int index = ST_P[i]; 
-        uint8_t p = EBWT[index]; 
-        RP.push_back(p);
-        int starting = index;
-        index = C[p]+wt.rank(index,p);
-        while(index != starting){
-            p = EBWT[index];
-            RP.push_back(p);
-            index = C[p]+wt.rank(index,p);
-        }
-        ++inverted;
-        // write the sequence in the correct order
-        reverse(RP.begin(),RP.end()); RP.push_back('\n');
-        if((fwrite(&RP[0], sizeof(uint8_t), RP.size(), fp))!=RP.size()) {cerr << "fwrite failed" << endl;}
-    }
-    cout << "Sequences inverted: " << inverted << endl;
-    fclose(fp);
-}
-*/
-
 void remapToOptimalOrder(string wt_input, string output_file)
 {
-    // Function that inverse the eBWT of a int string using sdsl wavelet trees
-    cout << "Building the Wavelet tree of the eBWT." << endl;
+    cout << "Building the Wavelet tree of the optimal BWT." << endl;
     cout << wt_input << endl;
     sdsl::wt_blcd<> ebwt; sdsl::construct(ebwt,wt_input,1);
 
     vector<uint32_t> C(alph_size,0); vector<uint32_t> bkt(alph_size,0);
-    cout << "Building the C vector of the eBWT." << endl;
+    cout << "Building the C vector of the optimal BWT." << endl;
     for(int i=0;i<ebwt.size();i++){ bkt[ebwt[i]]++; }
     for(int i=1;i<C.size();i++){ C[i]=C[i-1]+bkt[i-1]; }
 
@@ -76,27 +37,20 @@ void remapToOptimalOrder(string wt_input, string output_file)
     {
         std::vector<uint8_t> RP;  
         size_t index = i; 
-        // cout << index << endl;
         uint8_t p = ebwt[index]; 
         RP.push_back(p);
         size_t starting = index;
         index = C[p] + ebwt.rank(index,p);
-        //while(index != starting)
-        //cout << "----" << index << endl;
+
         while(true)
         {
-            //cout << p;
             p = ebwt[index];
             if(p == 35)
                 break;
             RP.push_back(p);
             index = C[p] + ebwt.rank(index,p);
-            // cout << index << endl;
-            // cout << index << endl;
         }
-        // cout << endl;
-        // exit(1);
-        // write the sequence in the correct order
+
         std::string header = std::string("> SEQUENCE ") + std::to_string(i) + "\n";
         if((fwrite(&header[0], sizeof(uint8_t), header.size(), fp))!=header.size()) {cerr << "fwrite failed" << endl;}
         reverse(RP.begin(),RP.end()); RP.push_back('\n');
@@ -112,7 +66,7 @@ int main(int argc, char *argv[])
   if(argc < 3)
   {
     std::cout << "Usage: " << argv[0] << " input output" << std::endl;
-    std::cout << "Invert the optBWT of the string collection and output it to name.rfasta" << std::endl;
+    std::cout << "Invert the optBWT of the string collection and output the original string collection to name.rfasta" << std::endl;
     exit(1);
   }
   std::cout << "==== Command line:" << std::endl;

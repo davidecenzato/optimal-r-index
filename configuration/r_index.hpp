@@ -76,7 +76,8 @@ public:
 	r_index(string &input, bool concat = true)
 	{
 		if(concat)
-			r_index_concat(input);
+			//r_index_concat(input);
+			r_index_concat_bigbwt(input);
 		else
 			r_index_multidollar(input);
 	}
@@ -101,16 +102,21 @@ public:
 		cout << "Text length = " << input.size() << endl << endl;
 
 		cout << "(1/3) Building BWT and computing SA samples";
-		if(sais) cout << " (SE-SAIS) ... " << flush;
-		else cout << "(DIVSUFSORT) ... " << flush;
+		//if(sais) cout << " (SE-SAIS) ... " << flush;
+		//else cout << "(DIVSUFSORT) ... " << flush;
 
 		//build run-length encoded BWT
-
+		std::cout << "Processing = " << input << std::endl;
 		auto bwt_and_samples = sufsort(input);
 
 		string& bwt_s = get<0>(bwt_and_samples);
 		vector<pair<ulint,ulint> >& samples_first_vec = get<1>(bwt_and_samples);
 		vector<ulint>& samples_last_vec = get<2>(bwt_and_samples);
+
+		for(int i=0;i<samples_first_vec.size();++i)
+			std::cout << samples_first_vec[i].first << " - " << samples_last_vec[i] << std::endl;
+		std::cout << bwt_s.size() << std::endl;
+		std::cout << bwt_s << std::endl;
 
 		cout << "done.\n(2/3) RLE encoding BWT ... " << flush;
 
@@ -163,6 +169,7 @@ public:
 			for(auto p : samples_first_vec){
 
 				assert(p.first < pred_bv.size());
+				std::cout << p.first << std::endl;
 				pred_bv[p.first] = true;
 
 			}
@@ -195,6 +202,143 @@ public:
 
 		cout << " done. " << endl<<endl;
 
+	}
+
+	/*
+	 * Build index from Big-BWT output
+	 */
+	void r_index_concat_bigbwt(string &input){
+
+		cout << "(1/2) RLE encoding BWT (and compute C vector) ... " << flush;
+
+		string bwt_file = input + ".bwt";
+		std::ifstream bwt_s(bwt_file);
+
+		bwt_s.seekg(0, std::ios::end);
+		ulint bwt_size = bwt_s.tellg(), text_size = 0;
+		bwt_s.seekg(0, std::ios::beg);
+
+		vector<char> heads; vector<ulint> lens;
+		char prev, curr;
+		ulint l = 1; this->r = 1;
+		// F column
+		F = vector<ulint>(256,0);
+
+		//cout << "bwt size: " << bwt_size << endl;
+		bwt_s.get(prev); F[prev]++;
+		//cout << int(prev) << endl;
+		for(ulint i=1;i<bwt_size;++i)
+		{
+			bwt_s.get(curr);
+			curr = curr==0 ? 1 : curr; F[curr]++;
+			//cout << int(curr) << endl;
+			if(curr != prev)
+			{
+				heads.push_back(prev);
+				lens.push_back(l); text_size += l;
+				prev = curr;
+				r++; l = 1;
+				if(curr == 1)
+					terminator_position = i;
+			}
+			else
+				l++;
+		}
+		// insert the last run
+		heads.push_back(prev);
+		lens.push_back(l); text_size += l;
+
+		assert(heads.size() == lens.size() == r);
+
+		for(ulint i=255;i>0;--i)
+			F[i] = F[i-1];
+
+		F[0] = 0;
+
+		for(ulint i=1;i<256;++i)
+			F[i] += F[i-1];
+
+		bwt = rle_string_t(heads,lens,bwt_size);
+		assert(r == bwt.number_of_runs(););
+
+		bwt_s.close();
+
+		int log_r = bitsize(uint64_t(r));
+		int log_n = bitsize(uint64_t(bwt_size));
+
+		cout << "BWT size: " << bwt_size << endl;
+		cout << "Number of BWT equal-letter runs: r = " << r << endl;
+		cout << "Rate n/r = " << double(bwt_size/(double)r) << endl;
+		cout << "log2(r) = " << log2(double(r)) << endl;
+		cout << "log2(n/r) = " << log2(double(bwt_size/(double)r)) << endl << endl;
+
+		cout << "(2/2) Building phi function ...\n" << flush;
+
+		string ssa_file = input + ".ssa";
+		std::ifstream ssa_s(ssa_file, std::ios::binary);
+		string esa_file = input + ".esa";
+		std::ifstream esa_s(esa_file, std::ios::binary);
+
+		samples_last = int_vector<>(r,0,log_n);
+		vector<ulint> Samples_first = vector<ulint>(r,0);
+		uint64_t sa; ulint clen = 0;
+
+		for(ulint i=0;i<heads.size();++i)
+		{
+			esa_s.read(reinterpret_cast<char*>(&sa), 5);
+			assert(sa == i);
+			esa_s.read(reinterpret_cast<char*>(&sa), 5);
+			//std::cout << sa << " ";
+			if(sa == 0)
+				sa = text_size-1;
+			else
+				sa--;
+			samples_last[i] = sa;
+			ssa_s.read(reinterpret_cast<char*>(&sa), 5);
+			assert(sa == i);
+			ssa_s.read(reinterpret_cast<char*>(&sa), 5);
+			//std::cout << sa << std::endl;
+			if(sa == 0)
+				sa = text_size-1;
+			else
+				sa--;
+			Samples_first[i] = sa;
+		}
+		ssa_s.close(); esa_s.close();
+
+
+		//sort samples at the beginning of a BWT run
+		vector<ulint> idx_vec = sort_indexes(Samples_first);
+		//build Elias-Fano predecessor
+		{
+
+			auto pred_bv = vector<bool>(bwt_size,false);
+
+			for(auto p : Samples_first){
+
+				assert(p < pred_bv.size());
+				pred_bv[p] = true;
+
+			}
+
+			pred = sparse_bv_type(pred_bv);
+		}
+
+		assert(pred.rank(pred.size()) == r);
+
+		//last text position must be sampled
+		assert(pred[pred.size()-1]);
+
+		pred_to_run = int_vector<>(r,0,log_r); //stores the BWT run (0...R-1) corresponding to each position in pred, in text order
+
+		for(ulint i=0;i<idx_vec.size();++i){
+
+			assert(bitsize(uint64_t(idx_vec[i])) <= log_r);
+			pred_to_run[i] = idx_vec[i];
+
+		}
+
+		cout << " done. " << endl<<endl;
 	}
 
 	/*
@@ -610,14 +754,17 @@ public:
 		//std::cout << w_bytes << " ";
 
 		w_bytes += bwt.serialize(out);
-		//std::cout << w_bytes << " ";
+		//std::cout << bwt.serialize(out) << " ";
+		//exit(1);
 
 		w_bytes += pred.serialize(out);
-		//std::cout << w_bytes << " ";
+		//std::cout << pred.serialize(out) << " ";
 		w_bytes += samples_last.serialize(out);
-		//std::cout << w_bytes << " ";
+		//std::cout << samples_last.serialize(out) << " ";
 		w_bytes += pred_to_run.serialize(out);
-		//std::cout << w_bytes << std::endl;;
+		//std::cout << pred_to_run.serialize(out) << std::endl;;
+
+		//std::cout << "end serialize: " << w_bytes << std::endl;
 
 		return w_bytes;
 	}

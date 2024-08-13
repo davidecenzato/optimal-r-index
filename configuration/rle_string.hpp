@@ -111,7 +111,7 @@ public:
 		runs_per_letter_bv[last_c].push_back(true);
 		runs_bv.push_back(false);
 		R++;
-
+		
 		assert(run_heads_s.size()==R);
 		assert(R==count_runs(input));
 
@@ -132,98 +132,12 @@ public:
 		for(ulint i=0;i<256;++i)
 			runs_per_letter[i] = sparse_bitvector_t(runs_per_letter_bv[i]);
 
+		//cout << "run_heads_s= " << run_heads_s.size() << endl;
 		run_heads = string_t(run_heads_s);
 
 		assert(run_heads.size()==R);
 
 	}
-
-	/* custom
-	rle_string(vector<char>& heads, vector<ulint>& lens, ulint input_size, ulint B = 2)
-	{
-
-		this->B = B;
-		n = input_size;
-		R = 0;
-
-		auto runs_per_letter_bv = vector<vector<bool> >(256);
-
-		//runs in main bitvector
-		vector<bool> runs_bv;
-		string run_heads_s;
-
-		get_BWT_char getter;
-
-		uchar last_c = getter.get_char(0,heads,lens);
-
-		for(ulint i=1;i<input_size;++i){
-
-			char curr_c = getter.get_char(i,heads,lens);
-
-			if(uchar(curr_c) != last_c){
-
-				run_heads_s.push_back(last_c);
-				runs_per_letter_bv[last_c].push_back(true);
-
-				last_c = curr_c;
-
-				//push back a bit set only at the end of a block
-				runs_bv.push_back(R%B==B-1);
-
-				R++;
-
-			}else{
-
-				runs_bv.push_back(false);
-				runs_per_letter_bv[last_c].push_back(false);
-
-			}
-
-		}
-
-		run_heads_s.push_back(last_c);
-		runs_per_letter_bv[last_c].push_back(true);
-		runs_bv.push_back(false);
-		R++;
-
-		cout << endl << "runs bv" << endl;
-		for(ulint i=0;i<runs_bv.size();++i)
-			cout << runs_bv[i] << " ";
-		cout << endl;
-		cout << "runs_per_letter_bv" << endl;
-		for(ulint i=0;i<256;++i)
-			for(ulint j=0;j<runs_per_letter_bv[i].size();++j)
-				cout << runs_per_letter_bv[i][j] << " ";
-			cout << endl;
-
-		assert(run_heads_s.size()==R);
-		assert(R==heads.size());
-
-		//cout << "runs in BWT(input) = " << count_runs(input) << endl;
-		cout << "runs in rle bwt = " << R << endl << endl;
-
-		//now compact structures
-
-		assert(runs_bv.size()==input_size);
-
-		ulint t = 0;
-		for(ulint i=0;i<256;++i)
-			t += runs_per_letter_bv[i].size();
-
-		assert(t==input_size);
-
-		runs = sparse_bitvector_t(runs_bv);
-
-		//a fast direct array: char -> bitvector.
-		runs_per_letter = vector<sparse_bitvector_t>(256);
-		for(ulint i=0;i<256;++i)
-			runs_per_letter[i] = sparse_bitvector_t(runs_per_letter_bv[i]);
-
-		run_heads = string_t(run_heads_s);
-
-		assert(run_heads.size()==R);
-
-	}*/
 
 	rle_string(vector<char>& heads, vector<ulint>& lens, ulint input_size, ulint B = 2)
 	{
@@ -253,21 +167,11 @@ public:
 			runs_bv.push_back(R%B==B-1);
 
 			R++;
-		}
-
-		run_heads_s.push_back(heads[heads.size()-1]);
-		runs_per_letter_bv[heads[heads.size()-1]].push_back(true);
-		runs_bv.push_back(false);
+		} 
 		R++;
-
+		
 		assert(run_heads_s.size()==R);
 		assert(R==heads.size());
-
-		//cout << "runs in BWT(input) = " << count_runs(input) << endl;
-		//cout << "runs in rle bwt = " << R << endl << endl;
-
-		//now compact structures
-
 		assert(runs_bv.size()==input_size);
 
 		ulint t = 0;
@@ -278,7 +182,7 @@ public:
 
 		runs = sparse_bitvector_t(runs_bv);
 
-		//a fast direct array: char -> bitvector.
+		// a fast direct array: char -> bitvector.
 		runs_per_letter = vector<sparse_bitvector_t>(256);
 		for(ulint i=0;i<256;++i)
 			runs_per_letter[i] = sparse_bitvector_t(runs_per_letter_bv[i]);
@@ -517,21 +421,15 @@ public:
 		out.write((char*)&B,sizeof(B));
 
 		w_bytes += sizeof(n) + sizeof(R) + sizeof(B);
-		//cout << "serialize rle" << endl;
-		//cout << w_bytes << " ";
 
 		if(n==0) return w_bytes;
 
 		w_bytes += runs.serialize(out);
-		//cout << w_bytes << " ";
 
 		for(ulint i=0;i<256;++i)
 			w_bytes += runs_per_letter[i].serialize(out);
-		//cout << w_bytes << " ";
-
+		
 		w_bytes += run_heads.serialize(out);
-		//cout << w_bytes << " ";
-		//cout << "end serialize rle" << endl;
 
 		return w_bytes;
 
