@@ -1,2 +1,2 @@
 index_type,dataset_name,dataset_size,no_seq,index_size
-concat-index,toy.fasta,25,5,8600
+multi-index,toy.fasta,25,5,8446

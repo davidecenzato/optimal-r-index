@@ -20,15 +20,16 @@ See usage options:
 ```console
 python3 pipeline.py -h
 
-usage: pipeline.py [-h] [--multi] [--opt] [--concat] [input_folder]
+usage: pipeline.py [-h] [--multi] [--opt] [--concat] [input_folder] [output_file]
 ```
 
-Input_folder: name of the folder containing the input fasta files.
+input_folder: name of the folder containing the input fasta files.
+output_file: name of the csv file containing the results.
 --multi: compute size of the r-index using the multidollar BWT.
 --opt: compute size of the r-index using the optimal BWT.
 --concat: compute size of the r-index using the concatenated BWT (the original one).
 
 Example of usage:
 ```console
-python3 pipeline.py --multi --opt --concat data/ > log.txt
+python3 pipeline.py --multi --opt --concat data/ exp1.csv
 ```
