@@ -15,6 +15,8 @@
 
 #include <sdsl/wavelet_trees.hpp>
 
+#define TERMINATE_CHAR '$'     //it is the symbol used as "end of strings"
+
 using namespace std;
 
 const int alph_size = 128;
@@ -30,7 +32,7 @@ void remapToOptimalOrder(string wt_input, string output_file)
     for(int i=0;i<ebwt.size();i++){ bkt[ebwt[i]]++; }
     for(int i=1;i<C.size();i++){ C[i]=C[i-1]+bkt[i-1]; }
 
-    uint32_t noStrings = bkt[35];
+    uint32_t noStrings = bkt[TERMINATE_CHAR];
     FILE* fp = fopen(output_file.c_str(), "w+");
 
     for(size_t i=0; i<noStrings; ++i)
@@ -45,7 +47,7 @@ void remapToOptimalOrder(string wt_input, string output_file)
         while(true)
         {
             p = ebwt[index];
-            if(p == 35)
+            if(p == TERMINATE_CHAR)
                 break;
             RP.push_back(p);
             index = C[p] + ebwt.rank(index,p);
