@@ -75,6 +75,22 @@ python3 exp_pipeline.py data output.csv
 
 [1] Davide Cenzato, Veronica Guerrini, Zsuzsanna Lipták, Giovanna Rosone: Computing the optimal BWT of very large string collections. DCC 2023: 71-80 ([go to the paper](https://doi.org/10.1109/DCC55655.2023.00015))
 
+If you use this tool in an academic setting, please cite this work as follows:
+
+**conference paper**
+
+    @inproceedings{CenzatoGLR23,
+      author       = {Davide Cenzato and
+                      Veronica Guerrini and
+                      Zsuzsanna Lipt{\'{a}}k and
+                      Giovanna Rosone},
+      title        = {Computing the optimal {BWT} of very large string collections},
+      booktitle    = {In Proc. of the 33rd Data Compression Conference, {DCC} 2023},
+      pages        = {71--80},
+      year         = {2023},
+      doi          = {10.1109/DCC55655.2023.00015}
+    }
+
 ### Contacts
 
 If you notice any bugs, please feel free to report them by opening a Git issue or by contacting us at davide_dot_cenzato_at_unive_dot_it email.
