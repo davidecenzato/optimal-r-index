@@ -12,13 +12,9 @@ project (s-rlbwt)
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/internal)
-include_directories(~/include) #SDSL headers are here
+include_directories(../sdsl-lite/install_dir/include) #SDSL headers are here
 
-LINK_DIRECTORIES(~/lib) #SDSL lib are here
-#include_directories(external/sdsl-lite/installed/include) #SDSL headers are here
-
-#LINK_DIRECTORIES(/Users/davidecenzato/Desktop/experiments/optBWTJournal/external/r-index/external/sdsl-lite/installed/lib/) #SDSL lib are here
-#LINK_DIRECTORIES(../external/sdsl-lite/installed/lib)
+LINK_DIRECTORIES(../sdsl-lite/install_dir/lib) #SDSL lib are here
 
 message("Building in ${CMAKE_BUILD_TYPE} mode")
 

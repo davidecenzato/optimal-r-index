@@ -1,35 +1,80 @@
-# optimalBWT journal paper experimental lineup
+# optimal-r-index
+
+This repository contains an implementation of the optimal r-index, i.e., the r-index of the BWT of string collections guaranteeing the minimum number of runs.
 
 ### Prerequesites
 
-sdsl-lite library installed in /usr/local/
+The optimal-r-index tool requires
+* A modern Python 3 release version 3.7 or higher.
+* A modern C++11 compiler such as `g++` version 4.9 or higher.
+* A modern 64bits MacOs or Linux based system (MacOs not for the experimental pipeline).
 
 ### Download and Compile
 
 ```console
-git clone https://github.com/davidecenzato/optimalBWTJournal.git
-cd optimalBWTJournal
+git clone https://github.com/davidecenzato/optimal-r-index.git
+cd optimal-r-index
 git submodule update --init --recursive
 
-python3 compile.py
+python3 install.py
 ```
 
 ### Usage
 
 See usage options:
 ```console
-python3 pipeline.py -h
+usage: optimal-r-index.py [-h] [--algo {sais,bcr}] [--keep] [input] [output]
 
-usage: pipeline.py [-h] [--multi] [--opt] [--concat] [input_folder] [output_file]
+Tool for computing the optimal r-index of a string collection
+
+positional arguments:
+  input              input FASTA path
+  output             output file path
+
+options:
+  -h, --help         show this help message and exit
+  --algo {sais,bcr}  algorithm for computing the optimal BWT (sais|bcr). Default: sais
+  --keep             keep temporary files
 ```
 
-input_folder: name of the folder containing the input fasta files.
-output_file: name of the csv file containing the results.
---multi: compute size of the r-index using the multidollar BWT.
---opt: compute size of the r-index using the optimal BWT.
---concat: compute size of the r-index using the concatenated BWT (the original one).
+The current implementation takes in input string collections in FASTA format only. You can choose between two algorithms for computing the optimal BWT: **`sais`**: works in internal memory and is faster for small datasets, **`bcr`**: works in semi-external memory and is better suited for large datasets.
 
-Example of usage:
+The `--keep` flag preserves all temporary files and is intended for debugging purposes. The main output of this software is the optimal r-index, stored in binary format as `output.ri`.
+
+### Run on Example Data
+
 ```console
-python3 pipeline.py --multi --opt --concat data/ exp1.csv
+// Construct the optimal-r-index of a toy dataset
+python3 optimal-r-index.py toy.fasta toy_index 
+
+// Run the testing pipeline for all FASTA files in a directory
+python3 exp_pipeline.py data output.csv
 ```
+
+### External resources
+
+* [optimalBWT](https://github.com/davidecenzato/optimalBWT.git)
+* [BCR_LCP_GSA](https://github.com/giovannarosone/BCR_LCP_GSA.git)
+* [sdsl-lite](https://github.com/simongog/sdsl-lite.git)
+* [r-index](https://github.com/nicolaprezza/r-index.git)
+* [Big-BWT](https://github.com/alshai/Big-BWT.git)
+
+### Authors
+
+* Davide Cenzato
+* Veronica Guerrini
+* Zsuzsanna Lipták
+* Giovanna Rosone
+
+#### Software coding and Experimental results:
+
+* Davide Cenzato
+* Veronica Guerrini
+
+### Reference and citation 
+
+[1] Davide Cenzato, Veronica Guerrini, Zsuzsanna Lipták, Giovanna Rosone: Computing the optimal BWT of very large string collections. DCC 2023: 71-80 ([go to the paper](https://doi.org/10.1109/DCC55655.2023.00015))
+
+### Contacts
+
+If you notice any bugs, please feel free to report them by opening a Git issue or by contacting us at davide_dot_cenzato_at_unive_dot_it email.

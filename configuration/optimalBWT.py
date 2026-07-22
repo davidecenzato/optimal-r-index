@@ -37,10 +37,10 @@ def main():
             command = ""
             if( file_size > 2**(32)-1 ):
                 if(args.verbose): print("Running optSAIS in 64 bit mode.")
-                command = "{exe} {input}".format(exe = os.path.join(args.optbwt_dir,optsais64_exe), input=args.input)
+                command = "{exe}".format(exe = os.path.join(args.optbwt_dir,optsais64_exe))
             else:
                 if(args.verbose): print("Running optSAIS in 32 bit mode.")
-                command = "{exe} {input}".format(exe = os.path.join(args.optbwt_dir,optsais_exe), input=args.input)
+                command = "{exe}".format(exe = os.path.join(args.optbwt_dir,optsais_exe))
             # check input format
             if( args.fastq ):
                 command += " -q"
@@ -51,6 +51,8 @@ def main():
                 command += " -v"
             # add output file path
             command += " -o " + args.output
+            # add input file path
+            command += " " + args.input
             # run the command
             if(args.verbose): print(command)
             if(execute_command(command,logfile,logfile_name)!=True):
