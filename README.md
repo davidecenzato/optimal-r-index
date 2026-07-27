@@ -1,6 +1,6 @@
 # optimal-r-index
 
-This repository contains an implementation of the optimal r-index, i.e., the r-index of the BWT of string collections guaranteeing the minimum number of runs.
+This repository contains an implementation of the **optimal r-index**, i.e., the r-index of the BWT of string collections guaranteeing the minimum number of runs. Such BWT is called **optimal BWT**, and can be computed using the [optimalBWT](https://github.com/davidecenzato/optimalBWT) tool.
 
 ### Prerequesites
 
