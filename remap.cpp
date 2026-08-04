@@ -15,7 +15,7 @@
 
 #include <sdsl/wavelet_trees.hpp>
 
-#define TERMINATE_CHAR '#'     //it is the symbol used as "end of strings"
+#define TERMINATE_CHAR '$'     //it is the symbol used as "end of strings"
 
 using namespace std;
 
@@ -33,6 +33,10 @@ void remapToOptimalOrder(string wt_input, string output_file)
     for(int i=1;i<C.size();i++){ C[i]=C[i-1]+bkt[i-1]; }
 
     uint32_t noStrings = bkt[TERMINATE_CHAR];
+    if(noStrings==0){
+        cerr << "WARNING: TERMINATE_CHAR must be "<< TERMINATE_CHAR << endl;
+        exit(1);
+    }
     FILE* fp = fopen(output_file.c_str(), "w+");
 
     for(size_t i=0; i<noStrings; ++i)
