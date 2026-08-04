@@ -31,11 +31,11 @@ def build_sdsl_lite():
         "external/sdsl-lite/install.sh",
         "external/sdsl-lite/install_dir/",
     ])
-    include_path = "external/sdsl-lite/install_dir/include"
-    lib_path = "external/sdsl-lite/install_dir/lib"
 
 def build_remap():
     print("###### Compiling string collection ordering script...")
+    include_path = "external/sdsl-lite/install_dir/include"
+    lib_path = "external/sdsl-lite/install_dir/lib"
     subprocess.call(
         f"g++ -o remap -std=c++11 -O3 -I{include_path} -L{lib_path} remap.cpp -lsdsl -ldivsufsort -ldivsufsort64".split()
     )
