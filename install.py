@@ -2,6 +2,8 @@
 
 import os, platform, shutil, subprocess, sys
 
+os.environ["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
+
 include_path = ""
 lib_path = ""
 
@@ -63,10 +65,10 @@ def build_r_index():
 
 def build_big_bwt():
     if is_ubuntu():
-        print("###### Compiling Big-BWT (Ubuntu detected)...")
+        print("###### Compiling Big-BWT (Linux detected)...")
         subprocess.call("make -C external/Big-BWT/".split())
     else:
-        print("###### Skipping Big-BWT (Not running on Ubuntu)...")
+        print("###### Skipping Big-BWT (Not running on MacOS)...")
 
 # --- Main --- #
 
