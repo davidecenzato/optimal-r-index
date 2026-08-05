@@ -45,7 +45,7 @@ The `--keep` flag preserves all temporary files and is intended for debugging pu
 
 ```console
 // Construct the optimal-r-index of a toy dataset
-python3 optimal-r-index.py toy.fasta toy_index 
+python3 optimal-r-index.py data/toy.fasta toy_index 
 
 // Run the testing pipeline for all FASTA files in a directory
 python3 exp_pipeline.py data output.csv
