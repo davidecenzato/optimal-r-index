@@ -20,7 +20,7 @@ optbwt_exe = base_path + "/external/optimalBWT/optimalBWT.py"
 bigbwt_exe = base_path + "/external/Big-BWT/bigbwt"
 remap_exe = base_path + "/remap"
 
-BWT_variants = {"multi": True, "opt": True, "concat": False}
+BWT_variants = {"multi": True, "opt": True, "concat": True}
 
 def main():
     parser = argparse.ArgumentParser(description=Description, formatter_class=argparse.RawTextHelpFormatter)
