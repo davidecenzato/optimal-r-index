@@ -18,11 +18,7 @@ def is_ubuntu():
 
 def build_optimal_bwt():
     print("###### Configuring and compiling optimalBWT...")
-    shutil.copy("configuration/optimalBWT.py", "external/optimalBWT/")
     shutil.copy("configuration/computeTransform.cpp", "external/optimalBWT/")
-    shutil.copy(
-        "configuration/makefile", "external/optimalBWT/external/BCR_LCP_GSA/"
-    )
     subprocess.call("make -C external/optimalBWT/".split())
 
 def build_sdsl_lite():
