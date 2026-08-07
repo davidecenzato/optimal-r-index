@@ -40,7 +40,6 @@ def build_remap():
 def build_bcr_lcp_gsa():
     print("###### Configuring and Compiling BCR_LCP_GSA...")
     shutil.copy("configuration/Parameters.h", "external/BCR_LCP_GSA/")
-    shutil.copy("configuration/makefile", "external/BCR_LCP_GSA/")
     subprocess.call("make DA=1 -C external/BCR_LCP_GSA/".split())
 
 def build_r_index():
