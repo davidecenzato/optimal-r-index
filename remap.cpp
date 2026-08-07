@@ -15,7 +15,7 @@
 
 #include <sdsl/wavelet_trees.hpp>
 
-#define TERMINATE_CHAR '#'     //it is the symbol used as "end of strings"
+#define TERMINATE_CHAR '$'     //it is the symbol used as "end of strings"
 
 using namespace std;
 
