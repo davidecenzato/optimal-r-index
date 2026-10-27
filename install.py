@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 
-import os, platform, shutil, subprocess
+import os, platform, shutil, subprocess, sys
 
 os.environ["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
 
 def is_linux():
     return platform.system() == "Linux"
 
+def run(command, cwd=None):
+    if subprocess.call(command, cwd=cwd) != 0:
+        sys.exit("###### Error: command failed: " + " ".join(command))
+
 def build_optimal_bwt():
     print("###### Configuring and compiling optimalBWT...")
     shutil.copy("configuration/optimalBWT/optimalBWT.py", "external/optimalBWT/")
-    subprocess.call("make -C external/optimalBWT/".split())
+    shutil.copy("configuration/BCR_LCP_GSA/makefile", "external/optimalBWT/external/BCR_LCP_GSA/")
+    run("make -C external/optimalBWT/".split())
 
 def build_sdsl_lite():
     print("###### Compiling sdsl-lite...")
     shutil.copy("configuration/sdsl-lite/CMakeLists.txt", "external/sdsl-lite/")
-    subprocess.call([
+    run([
         "external/sdsl-lite/install.sh",
         "external/sdsl-lite/install_dir/",
     ])
@@ -24,14 +29,15 @@ def build_remap():
     print("###### Compiling string collection ordering script...")
     include_path = "external/sdsl-lite/install_dir/include"
     lib_path = "external/sdsl-lite/install_dir/lib"
-    subprocess.call(
+    run(
         f"g++ -o remap -std=c++11 -O3 -I{include_path} -L{lib_path} remap.cpp -lsdsl -ldivsufsort -ldivsufsort64".split()
     )
 
 def build_bcr_lcp_gsa():
     print("###### Configuring and Compiling BCR_LCP_GSA...")
     shutil.copy("configuration/Parameters.h", "external/BCR_LCP_GSA/")
-    subprocess.call("make DA=1 -C external/BCR_LCP_GSA/".split())
+    shutil.copy("configuration/BCR_LCP_GSA/makefile", "external/BCR_LCP_GSA/")
+    run("make DA=1 -C external/BCR_LCP_GSA/".split())
 
 def build_r_index():
     print("###### Configuring and Compiling the r-index...")
@@ -45,13 +51,13 @@ def build_r_index():
     )
 
     os.makedirs("external/r-index/build", exist_ok=True)
-    subprocess.call(["cmake", ".."], cwd="external/r-index/build")
-    subprocess.call(["make"], cwd="external/r-index/build")
+    run(["cmake", ".."], cwd="external/r-index/build")
+    run(["make"], cwd="external/r-index/build")
 
 def build_big_bwt():
     if is_linux():
         print("###### Compiling Big-BWT (Linux detected)...")
-        subprocess.call("make -C external/Big-BWT/".split())
+        run("make -C external/Big-BWT/".split())
     else:
         print("###### Skipping Big-BWT (only supported on Linux; needed only by exp_pipeline.py)...")
 
