@@ -10,7 +10,7 @@ set(PROJECT_URL "https://github.com/simongog/sdsl-lite")
 set(PROJECT_DESCRIPTION "SDSL: Succinct Data Structure Library")
 set(CMAKE_BUILD_TYPE "Release")
 
-# Standard C++11 globale e moderno
+# Require C++11 globally
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -30,7 +30,7 @@ set(LIBRARY_VERSION_FULL "${LIBRARY_VERSION}.${LIBRARY_VERSION_PATCH}")
 option(CODE_COVERAGE "Set ON to add code coverage compile options" OFF)
 option(GENERATE_DOC "Set ON to generate doxygen API reference in build/doc directory" OFF)
 
-# Rilevamento avanzato di Clang e AppleClang
+# Detect Clang and AppleClang
 if(CMAKE_CXX_COMPILER MATCHES ".*clang.*" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     set(CMAKE_COMPILER_IS_CLANGXX 1)
 endif()

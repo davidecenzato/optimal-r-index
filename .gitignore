@@ -1,1 +1,9 @@
 .DS_Store
+
+# build outputs
+remap
+
+# tool outputs and logs
+*.log
+*.ri
+*.da

@@ -1,6 +1,6 @@
 /* ******************************************************************
  * A simple function that takes in input the optimal BWT and writes the 
- * original string collections in Bentely et al. order.
+ * original string collections in Bentley et al. (optimal) order.
  * ****************************************************************** */
 
 #include <stdio.h>
@@ -15,7 +15,7 @@
 
 #include <sdsl/wavelet_trees.hpp>
 
-#define TERMINATE_CHAR '$'     //it is the symbol used as "end of strings"
+#define TERMINATE_CHAR '$'     // it is the symbol used as "end of strings"
 
 using namespace std;
 
@@ -66,13 +66,11 @@ void remapToOptimalOrder(string wt_input, string output_file)
 
 int main(int argc, char *argv[])
 {  
-  time_t start_wc = time(NULL);
-  
     // check input data
   if(argc < 3)
   {
     std::cout << "Usage: " << argv[0] << " input output" << std::endl;
-    std::cout << "Invert the optBWT of the string collection and output the original string collection to name.rfasta" << std::endl;
+    std::cout << "Invert the optBWT of the string collection and write the original string collection to output (FASTA)" << std::endl;
     exit(1);
   }
   std::cout << "==== Command line:" << std::endl;

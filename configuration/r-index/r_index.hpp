@@ -35,7 +35,7 @@ void read_file(const char *filename, std::vector<T>& ptr){
         std::cerr << "stat() file " + std::string(filename) + " failed\n";
 
     if(filestat.st_size % sizeof(T) != 0)
-        std::cerr << "invilid file " + std::string(filename) + "\n";
+        std::cerr << "invalid file " + std::string(filename) + "\n";
 
     size_t length = filestat.st_size / sizeof(T);
     ptr.resize(length);
@@ -77,133 +77,9 @@ public:
 	r_index(string &input, bool concat = true)
 	{
 		if(concat)
-			//r_index_concat(input);
 			r_index_concat_bigbwt(input);
 		else
-			//r_index_multidollar_wrong(input);
 			r_index_multidollar(input);
-	}
-
-	void r_index_concat(string &input_file){
-
-		std::ifstream fs(input_file);
-		std::stringstream buffer;
-		buffer << fs.rdbuf();
-
-		std::string input = buffer.str();
-
-		this->sais = true;
-
-		if(contains_reserved_chars(input)){
-
-			cout << "Error: input string contains one of the reserved characters 0x0, 0x1" << endl;
-			exit(1);
-
-		}
-
-		cout << "Text length = " << input.size() << endl << endl;
-
-		cout << "(1/3) Building BWT and computing SA samples";
-		//if(sais) cout << " (SE-SAIS) ... " << flush;
-		//else cout << "(DIVSUFSORT) ... " << flush;
-
-		//build run-length encoded BWT
-		std::cout << "Processing = " << input << std::endl;
-		auto bwt_and_samples = sufsort(input);
-
-		string& bwt_s = get<0>(bwt_and_samples);
-		vector<pair<ulint,ulint> >& samples_first_vec = get<1>(bwt_and_samples);
-		vector<ulint>& samples_last_vec = get<2>(bwt_and_samples);
-
-		for(int i=0;i<samples_first_vec.size();++i)
-			std::cout << samples_first_vec[i].first << " - " << samples_last_vec[i] << std::endl;
-		std::cout << bwt_s.size() << std::endl;
-		std::cout << bwt_s << std::endl;
-
-		cout << "done.\n(2/3) RLE encoding BWT ... " << flush;
-
-		bwt = rle_string_t(bwt_s);
-
-		//build F column
-		F = vector<ulint>(256,0);
-		for(uchar c : bwt_s)
-			F[c]++;
-
-		for(ulint i=255;i>0;--i)
-			F[i] = F[i-1];
-
-		F[0] = 0;
-
-		for(ulint i=1;i<256;++i)
-			F[i] += F[i-1];
-
-		for(ulint i=0;i<bwt_s.size();++i)
-			if(bwt_s[i]==TERMINATOR)
-				terminator_position = i;
-
-		assert(input.size()+1 == bwt.size());
-
-		cout << "done. " << endl<<endl;
-
-		r = bwt.number_of_runs();
-
-		assert(samples_first_vec.size() == r);
-		assert(samples_last_vec.size() == r);
-
-		int log_r = bitsize(uint64_t(r));
-		int log_n = bitsize(uint64_t(bwt.size()));
-
-		cout << "Number of BWT equal-letter runs: r = " << r << endl;
-		cout << "Rate n/r = " << double(bwt.size())/r << endl;
-		cout << "log2(r) = " << log2(double(r)) << endl;
-		cout << "log2(n/r) = " << log2(double(bwt.size())/r) << endl << endl;
-
-		cout << "(3/3) Building phi function ..." << flush;
-
-		//sort samples of first positions in runs according to text position
-		std::sort(samples_first_vec.begin(), samples_first_vec.end());
-
-		//build Elias-Fano predecessor
-		{
-
-			auto pred_bv = vector<bool>(bwt_s.size(),false);
-
-			for(auto p : samples_first_vec){
-
-				assert(p.first < pred_bv.size());
-				std::cout << p.first << std::endl;
-				pred_bv[p.first] = true;
-
-			}
-
-			pred = sparse_bv_type(pred_bv);
-
-		}
-
-		assert(pred.rank(pred.size()) == r);
-
-		//last text position must be sampled
-		assert(pred[pred.size()-1]);
-
-		samples_last = int_vector<>(r,0,log_n); //text positions corresponding to last characters in BWT runs, in BWT order
-		pred_to_run = int_vector<>(r,0,log_r); //stores the BWT run (0...R-1) corresponding to each position in pred, in text order
-
-		for(ulint i=0;i<samples_last_vec.size();++i){
-
-			assert(bitsize(uint64_t(samples_last_vec[i])) <= log_n);
-			samples_last[i] = samples_last_vec[i];
-
-		}
-
-		for(ulint i=0;i<samples_first_vec.size();++i){
-
-			assert(bitsize(uint64_t(samples_first_vec[i].second)) <= log_r);
-			pred_to_run[i] = samples_first_vec[i].second;
-
-		}
-
-		cout << " done. " << endl<<endl;
-
 	}
 
 	/*
@@ -226,14 +102,11 @@ public:
 		// F column
 		F = vector<ulint>(256,0);
 
-		//cout << "bwt size: " << bwt_size << endl;
 		bwt_s.get(prev); F[prev]++;
-		//cout << int(prev) << endl;
 		for(ulint i=1;i<bwt_size;++i)
 		{
 			bwt_s.get(curr);
 			curr = curr==0 ? 1 : curr; F[curr]++;
-			//cout << int(curr) << endl;
 			if(curr != prev)
 			{
 				heads.push_back(prev);
@@ -290,7 +163,6 @@ public:
 			esa_s.read(reinterpret_cast<char*>(&sa), 5);
 			assert(sa == i);
 			esa_s.read(reinterpret_cast<char*>(&sa), 5);
-			//std::cout << sa << " ";
 			if(sa == 0)
 				sa = text_size-1;
 			else
@@ -299,7 +171,6 @@ public:
 			ssa_s.read(reinterpret_cast<char*>(&sa), 5);
 			assert(sa == i);
 			ssa_s.read(reinterpret_cast<char*>(&sa), 5);
-			//std::cout << sa << std::endl;
 			if(sa == 0)
 				sa = text_size-1;
 			else
@@ -364,7 +235,6 @@ public:
 		F = vector<ulint>(256,0);
 
 		bwt_s >> prev; F[prev]++;
-		//cout << "prev: " << prev << endl;
 		for(ulint i=1;i<bwt_size;++i)
 		{
 			bwt_s >> curr; F[curr]++;
@@ -518,180 +388,6 @@ public:
 	}
 
 	/*
-	 * Build index for BWT with different dollars
-	 */
-	void r_index_multidollar_old(string &input){
-
-		cout << "(1/2) RLE encoding BWT (and compute C vector) ... " << flush;
-
-		string bwt_file = input + ".ebwt";
-		std::ifstream bwt_s(bwt_file);
-
-		bwt_s.seekg(0, std::ios::end);
-		ulint bwt_size = bwt_s.tellg();
-		bwt_s.seekg(0, std::ios::beg);
-
-		vector<char> heads; vector<ulint> lens;
-		char prev, curr;
-		ulint l = 1; this->r = 1;
-		// F column
-		F = vector<ulint>(256,0);
-
-		bwt_s >> prev; F[prev]++;
-		//cout << "prev: " << prev << endl;
-		for(ulint i=1;i<bwt_size;++i)
-		{
-			bwt_s >> curr; F[curr]++;
-			if(curr != prev or curr == '$')
-			{
-				heads.push_back(prev);
-				lens.push_back(l);
-				prev = curr;
-				r++; l = 1;
-				//if(curr == '$')
-					//terminator_position = i;
-			}
-			else
-				l++;
-		}
-		if(curr != prev or curr == '$')
-		{
-			heads.push_back(prev);
-			lens.push_back(l);
-		}
-
-		assert(heads.size() == lens.size());
-
-		for(ulint i=255;i>0;--i)
-			F[i] = F[i-1];
-
-		F[0] = 0;
-
-		for(ulint i=1;i<256;++i)
-			F[i] += F[i-1];
-
-		bwt = rle_string_t(heads,lens,bwt_size);
-
-		bwt_s.close();
-
-		ulint curr_index = 0;
-		while(bwt[curr_index] != '$')
-		{
-			curr = bwt[curr_index];
-			curr_index = bwt.rank(curr_index+1,curr) + F[curr] - 1;
-		}
-		terminator_position = curr_index;
-		//cout << "term pos: " << terminator_position << endl;
-		//exit(1);
-
-		int log_r = bitsize(uint64_t(r));
-		int log_n = bitsize(uint64_t(bwt_size));
-
-		cout << "BWT size: " << bwt_size << endl;
-		cout << "Number of BWT equal-letter runs: r = " << r << endl;
-		cout << "Rate n/r = " << double(bwt_size/(double)r) << endl;
-		cout << "log2(r) = " << log2(double(r)) << endl;
-		cout << "log2(n/r) = " << log2(double(bwt_size/(double)r)) << endl << endl;
-
-		cout << "(2/2) Building phi function ..." << flush;
-
-		string len_file = input + ".len";
-		std::ifstream len_s(len_file);
-		len_s.seekg(0, std::ios::end);
-		ulint no_strings = len_s.tellg();
-		len_s.seekg(0, std::ios::beg);
-
-		int_vector<> offsets = int_vector<>(no_strings,0,log_n); 
-		uint8_t cl;
-		for(ulint i=1;i<no_strings;++i)
-		{
-			len_s >> cl;
-			offsets[i] = offsets[i-1] + cl + 1;
-		}
-
-		string da_file = input + ".da";
-		std::ifstream da_s(da_file, std::ios::binary);
-		string sa_file = input + ".posSA";
-		std::ifstream sa_s(sa_file);
-
-		samples_last = int_vector<>(r,0,log_n);
-		vector<ulint> Samples_first = vector<ulint>(r,0);
-		//pred_to_run = int_vector<>(r,0,log_r);
-		uint32_t da; uint8_t sa; ulint clen = 0;
-
-		sa_s >> sa;
-		da_s.read(reinterpret_cast<char*>(&da), sizeof(uint32_t));
-		Samples_first[0] =	offsets[da] + sa;
-		std::cout << Samples_first[0] << " ";
-		for(ulint i=0;i<heads.size();++i)
-		{
-			clen += lens[i];
-			// get end
-			da_s.seekg((clen-1)*sizeof(uint32_t), std::ios::beg);
-			sa_s.seekg(clen-1, std::ios::beg);
-
-			sa_s >> sa;
-			da_s.read(reinterpret_cast<char*>(&da), sizeof(uint32_t));
-			samples_last[i] = offsets[da] + sa;
-
-			sa_s >> sa;
-			da_s.read(reinterpret_cast<char*>(&da), sizeof(uint32_t));
-			Samples_first[i+1] = offsets[da] + sa;
-			std::cout << Samples_first[i+1] << " ";
-		}
-
-		clen += lens[lens.size()-1];
-		da_s.seekg((clen-1)*sizeof(uint32_t), std::ios::beg);
-		sa_s.seekg(clen-1, std::ios::beg);
-		sa_s >> sa;
-		da_s.read(reinterpret_cast<char*>(&da), sizeof(uint32_t));
-		samples_last[samples_last.size()-1] = offsets[da] + sa;
-
-		len_s.close(); da_s.close(); sa_s.close();
-
-		//sort samples at the beginning of a BWT run
-		vector<ulint> idx_vec = sort_indexes(Samples_first);
-
-
-		cout << "bwt_size: " << bwt_size << endl;
-		ulint no_bv = 0;
-		//build Elias-Fano predecessor
-		{
-
-			auto pred_bv = vector<bool>(bwt_size,false);
-
-			for(auto p : Samples_first){
-
-				assert(p < pred_bv.size());
-				no_bv++;
-				pred_bv[p] = true;
-
-			}
-			std::cout << "no_bv: " << no_bv << std::endl;
-			pred = sparse_bv_type(pred_bv);
-			for(ulint i=0;i<pred_bv.size();++i)
-				std::cout << pred_bv[i];
-			std::cout << std::endl;
-		}
-
-		assert(pred.rank(pred.size()) == r);
-
-		//last text position must be sampled
-		assert(pred[pred.size()-1]);
-
-		pred_to_run = int_vector<>(r,0,log_r); //stores the BWT run (0...R-1) corresponding to each position in pred, in text order
-
-		for(ulint i=0;i<idx_vec.size();++i){
-
-			assert(bitsize(uint64_t(idx_vec[i])) <= log_r);
-			pred_to_run[i] = idx_vec[i];
-
-		}
-
-		cout << " done. " << endl<<endl;
-	}
-
-	/*
 	 * get full BWT range
 	 */
 	range_t full_range(){
@@ -718,11 +414,9 @@ public:
 
 		//number of c before the interval
 		ulint c_before = bwt.rank(rn.first,c);
-		//std::cout << "c before " << bwt.rank(rn.first,c) << std::endl;
 
 		//number of c inside the interval rn
 		ulint c_inside = bwt.rank(rn.second+1,c) - c_before;
-		//std::cout << "c inside " << bwt.rank(rn.second,c) << std::endl;
 
 		//if there are no c in the interval, return empty range
 		if(c_inside==0) return {1,0};
@@ -837,12 +531,9 @@ public:
 
 		auto range = full_range();
 		ulint m = P.size();
-		//std::cout << range.first << " - " << range.second << std::endl;
 
-		for(ulint i=0;i<m and range.second>=range.first;++i)
-		{
+		for(ulint i=0;i<m and range.second>=range.first;++i){
 			range = LF(range,P[m-i-1]);
-			//std::cout << range.first << " - " << range.second << std::endl;
 		}
 
 		return range;
@@ -938,19 +629,11 @@ public:
 		out.write((char*)F.data(),256*sizeof(ulint));
 
 		w_bytes += sizeof(terminator_position) + 256*sizeof(ulint);
-		//std::cout << w_bytes << " ";
-
 		w_bytes += bwt.serialize(out);
-		//std::cout << bwt.serialize(out) << " ";
-
 		w_bytes += pred.serialize(out);
-		//std::cout << pred.serialize(out) << " ";
 		w_bytes += samples_last.serialize(out);
-		//std::cout << samples_last.serialize(out) << " ";
 		w_bytes += pred_to_run.serialize(out);
-		//std::cout << pred_to_run.serialize(out) << std::endl;
 
-		//std::cout << "end serialize: " << w_bytes << std::endl;
 		return w_bytes;
 	}
 
@@ -1221,4 +904,4 @@ private:
 
 }
 
-#endif /* R_INDEX_S_H_ */
+#endif /* R_INDEX_HPP_ */

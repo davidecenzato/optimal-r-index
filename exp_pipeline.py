@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, time, argparse, subprocess, os.path, os, glob, math
+import sys, argparse, subprocess, os.path, os
 from pathlib import Path
 
 Description = """
@@ -15,7 +15,6 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 
 BCR_LCP_GSA_exe = base_path + "/external/BCR_LCP_GSA/BCR_LCP_GSA"
 r_index_exe = base_path + "/external/r-index/build/ri-build"
-r_index_space_exe = base_path + "/external/r-index/build/ri-space"
 optbwt_exe = base_path + "/external/optimalBWT/optimalBWT.py"
 bigbwt_exe = base_path + "/external/Big-BWT/bigbwt"
 remap_exe = base_path + "/remap"
@@ -62,12 +61,11 @@ def main():
             no_seq = int(no_seq)
 
             if BWT_variants["multi"]:
-                #print("Size of the input-order r-index: ",end="")
                 command = "{exe} {input} {output}".format(exe = BCR_LCP_GSA_exe,
                                                           input = args.input,
                                                           output= args.input)
                 if not execute_command(command,logfile,args.output_file+".log"):
-                    return
+                    sys.exit(1)
 
                 command = "{exe} -multidollar {input}".format(exe = r_index_exe,
                                                               input = args.input)
@@ -82,27 +80,27 @@ def main():
                     f"{args.input}.len",
                     f"{args.input}.posSA",
                     f"{args.input}.ri",
+                    f"{args.input}.da",
                 ])
 
             if BWT_variants["opt"]:
-                #print("Size of the optimal BWT r-index: ",end="")
                 command = "python3 {exe} -a bcr --fasta -b 1000 {input} {output}".format(exe = optbwt_exe, 
                                                                                          input = args.input,
                                                                                          output = args.input)
                 if not execute_command(command,logfile,args.output_file+".log"):
-                    return
+                    sys.exit(1)
 
                 command = "{exe} {input} {output}".format(exe = remap_exe,
                                                           input = args.input+".optbwt",
                                                           output = args.input+"_remap.fasta")
                 if not execute_command(command,logfile,args.output_file+".log"):
-                    return
+                    sys.exit(1)
 
                 command = "{exe} {input} {output}".format(exe = BCR_LCP_GSA_exe,
                                                           input = args.input+"_remap.fasta",
                                                           output= args.input+"_remap.fasta")
                 if not execute_command(command,logfile,args.output_file+".log"):
-                    return
+                    sys.exit(1)
 
                 command = "{exe} -multidollar {input}".format(exe = r_index_exe,
                                                               input = args.input+"_remap.fasta")
@@ -116,16 +114,16 @@ def main():
                     f"{args.input}.info",
                     f"{args.input}.len",
                     f"{args.input}.optbwt",
-                    f"{args.input}._remap.fasta",
-                    f"{args.input}._remap.fasta.ebwt",
-                    f"{args.input}._remap.fasta.info",
-                    f"{args.input}._remap.fasta.len",
-                    f"{args.input}._remap.fasta.posSA",
-                    f"{args.input}._remap.fasta.ri",
+                    f"{args.input}_remap.fasta",
+                    f"{args.input}_remap.fasta.ebwt",
+                    f"{args.input}_remap.fasta.info",
+                    f"{args.input}_remap.fasta.len",
+                    f"{args.input}_remap.fasta.posSA",
+                    f"{args.input}_remap.fasta.ri",
+                    f"{args.input}_remap.fasta.da",
                 ])
 
             if BWT_variants["concat"]:
-                #print("Size of the original r-index: ",end="")
                 command = "grep -v >"
                 with open(args.input, 'rb', 0) as a, open(args.input+".flat", 'w') as b:
                     rc = subprocess.call(command.split(), stdin=a, stdout=b)
@@ -133,7 +131,7 @@ def main():
                 command = "python3 {exe} -w 10 -p 50 -s -e {input}".format(exe = bigbwt_exe,
                                                                            input = args.input+".flat")
                 if not execute_command(command,logfile,args.output_file+".log"):
-                    return
+                    sys.exit(1)
 
                 command = "{exe} {input}".format(exe = r_index_exe,
                                                  input = args.input+".flat")
@@ -157,7 +155,6 @@ def main():
 # execute command: return True is everything OK, False otherwise
 def execute_command(command,logfile=None,logfile_name=None,env=None):
     try:
-        #subprocess.run(command.split(),stdout=logfile,stderr=logfile,check=True,env=env)
         subprocess.check_call(command.split(),stdout=logfile,stderr=logfile,env=env)
     except subprocess.CalledProcessError:
         print("Error executing command line:")

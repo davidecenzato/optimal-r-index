@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, time, argparse, subprocess, os.path, os, glob, math
+import sys, argparse, subprocess, os.path, os
 
 Description = """
 Tool for computing the optimal r-index of a string collection
@@ -22,6 +22,9 @@ def main():
     parser.add_argument('--keep', help='keep temporary files',action='store_true')
     args = parser.parse_args()
 
+    if args.input is None or args.output is None:
+        parser.error("both input and output paths are required")
+
     logfile = open(args.input+".log","a")
 
     command = "python3 {exe} -a {algo} --fasta -b 1000 {input} {output}".format(exe = optbwt_exe,
@@ -29,41 +32,48 @@ def main():
                                                                                 input = args.input,
                                                                                 output = args.input)
     if not execute_command(command,logfile,args.input+".log"):
-        return
+        logfile.close()
+        sys.exit(1)
 
     command = "{exe} {input} {output}".format(exe = remap_exe,
                                               input = args.input+".optbwt",
                                               output = args.input+"_sorted.fasta")
     if not execute_command(command,logfile,args.input+".log"):
-        return
+        logfile.close()
+        sys.exit(1)
 
     command = "{exe} {input} {output}".format(exe = BCR_LCP_GSA_exe,
                                               input = args.input+"_sorted.fasta",
                                               output= args.output)
     if not execute_command(command,logfile,args.input+".log"):
-        return
+        logfile.close()
+        sys.exit(1)
 
     command = "{exe} -multidollar {input}".format(exe = r_index_exe,
                                                   input = args.output)
     if not execute_command(command,logfile,args.input+".log"):
-        return
+        logfile.close()
+        sys.exit(1)
 
     if not args.keep:
         files_to_remove = [
             args.input + ".optbwt",
             args.input + "_sorted.fasta",
+            # produced only by the bcr algorithm
+            args.input + ".info",
+            args.input + ".len",
             *(f"{args.output}.{ext}" for ext in ["ebwt", "info", "len", "posSA"]),
         ]
 
         for filepath in files_to_remove:
-            os.remove(filepath)
+            if os.path.exists(filepath):
+                os.remove(filepath)
 
     logfile.close()
 
 # execute command: return True is everything OK, False otherwise
 def execute_command(command,logfile=None,logfile_name=None,env=None):
     try:
-        #subprocess.run(command.split(),stdout=logfile,stderr=logfile,check=True,env=env)
         subprocess.check_call(command.split(),stdout=logfile,stderr=logfile,env=env)
     except subprocess.CalledProcessError:
         print("Error executing command line:")

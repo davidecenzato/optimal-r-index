@@ -1,29 +1,20 @@
 #!/usr/bin/env python3
 
-import os, platform, shutil, subprocess, sys
+import os, platform, shutil, subprocess
 
 os.environ["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
 
-include_path = ""
-lib_path = ""
-
-def is_ubuntu():
-    if platform.system() != "Linux":
-        return False
-    try:
-        with open("/etc/os-release") as f:
-            return "ubuntu" in f.read().lower()
-    except FileNotFoundError:
-        return False
+def is_linux():
+    return platform.system() == "Linux"
 
 def build_optimal_bwt():
     print("###### Configuring and compiling optimalBWT...")
+    shutil.copy("configuration/optimalBWT/optimalBWT.py", "external/optimalBWT/")
     subprocess.call("make -C external/optimalBWT/".split())
 
 def build_sdsl_lite():
     print("###### Compiling sdsl-lite...")
     shutil.copy("configuration/sdsl-lite/CMakeLists.txt", "external/sdsl-lite/")
-    shutil.copy("configuration/sdsl-lite/build.sh", "external/sdsl-lite/build/")
     subprocess.call([
         "external/sdsl-lite/install.sh",
         "external/sdsl-lite/install_dir/",
@@ -58,11 +49,11 @@ def build_r_index():
     subprocess.call(["make"], cwd="external/r-index/build")
 
 def build_big_bwt():
-    if is_ubuntu():
+    if is_linux():
         print("###### Compiling Big-BWT (Linux detected)...")
         subprocess.call("make -C external/Big-BWT/".split())
     else:
-        print("###### Skipping Big-BWT (Not running on MacOS)...")
+        print("###### Skipping Big-BWT (only supported on Linux; needed only by exp_pipeline.py)...")
 
 # --- Main --- #
 

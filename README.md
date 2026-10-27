@@ -2,12 +2,12 @@
 
 This repository contains an implementation of the **optimal r-index**, i.e., the r-index of the BWT of string collections guaranteeing the minimum number of runs. Such BWT is called **optimal BWT**, and can be computed using the [optimalBWT](https://github.com/davidecenzato/optimalBWT) tool.
 
-### Prerequesites
+### Prerequisites
 
 The optimal-r-index tool requires
 * A modern Python 3 release version 3.7 or higher.
 * A modern C++11 compiler such as `g++` version 4.9 or higher.
-* A modern 64bits MacOs or Linux based system (MacOs not for the experimental pipeline).
+* A modern 64-bit macOS or Linux system (the experimental pipeline, which uses Big-BWT, requires Linux).
 
 ### Download and Compile
 
