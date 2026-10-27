@@ -1,6 +1,8 @@
 // Copyright (c) 2017, Nicola Prezza.  All rights reserved.
 // Use of this source code is governed
 // by a MIT license that can be found in the LICENSE file.
+//
+// Modified by Davide Cenzato, 2024-2026
 
 #include <iostream>
 
@@ -61,28 +63,8 @@ void parse_args(char** argv, int argc, int &ptr){
 	}else if(s.compare("-multidollar")==0){
 
 		concat = false;
-	}
-	/*else if(s.compare("-h")==0){
+	}else{
 
-		hyb=true;
-
-	}/*else if(s.compare("-fast")==0){
-
-		fast=true;
-
-	}else if(s.compare("-T")==0){
-
-		T = atoi(argv[ptr]);
-
-		if(T<=0){
-			cout << "Error: parameter T must be T>0" << endl;
-			help();
-		}
-
-		ptr++;
-		fast=true;
-
-	}*/else{
 		cout << "Error: unrecognized '" << s << "' option." << endl;
 		help();
 	}
@@ -123,8 +105,6 @@ int main(int argc, char** argv){
 	string path = string(out_basename).append(".ri");
 	std::ofstream out(path);
 
-	//save flag storing whether index is fast or small
-	// out.write((char*)&fast,sizeof(fast));
 	ulint index_size = 0;
 
 	if(hyb){

@@ -59,6 +59,8 @@ python3 exp_pipeline.py data output.csv
 * [r-index](https://github.com/nicolaprezza/r-index.git)
 * [Big-BWT](https://github.com/alshai/Big-BWT.git)
 
+See [external/README.md](external/README.md) for the licenses of these tools.
+
 ### Authors
 
 * Davide Cenzato

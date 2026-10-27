@@ -1,3 +1,8 @@
+# Modified version of the CMakeLists.txt of sdsl-lite
+# (https://github.com/simongog/sdsl-lite), Copyright (C) 2007-2014 Simon Gog,
+# distributed under the GNU General Public License v3.0.
+# Modified by Davide Cenzato, 2024-2026.
+
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 include(AppendCompilerFlags)

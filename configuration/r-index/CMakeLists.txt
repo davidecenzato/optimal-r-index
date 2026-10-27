@@ -1,3 +1,8 @@
+# Modified version of the CMakeLists.txt of r-index
+# (https://github.com/nicolaprezza/r-index), Copyright (c) 2017 Nicola Prezza,
+# distributed under the MIT license.
+# Modified by Davide Cenzato, 2024-2026.
+
 cmake_minimum_required(VERSION 3.5)
 
 # Set a default build type if none was specified

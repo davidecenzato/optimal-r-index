@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Modified version of optimalBWT.py from https://github.com/davidecenzato/optimalBWT
+# Modified by Davide Cenzato, 2024-2026.
+
 import sys, time, argparse, subprocess, os.path
 
 Description = """

@@ -2,7 +2,7 @@
 // Use of this source code is governed
 // by a MIT license that can be found in the LICENSE file.
 //
-// Modified by Davide Cenzato, 2026
+// Modified by Davide Cenzato, 2024-2026
 /*
  * r_index.hpp
  *
@@ -904,4 +904,4 @@ private:
 
 }
 
-#endif /* R_INDEX_HPP_ */
+#endif /* R_INDEX_S_H_ */
