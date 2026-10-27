@@ -62,7 +62,7 @@ def main():
             # produced only by the bcr algorithm
             args.input + ".info",
             args.input + ".len",
-            *(f"{args.output}.{ext}" for ext in ["ebwt", "info", "len", "posSA"]),
+            *(f"{args.output}.{ext}" for ext in ["ebwt", "info", "len", "posSA", "da"]),
         ]
 
         for filepath in files_to_remove:

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys, argparse, subprocess, os.path, os
-from pathlib import Path
 
 Description = """
 Script implementing the optimal r-index experimental pipeline
@@ -9,7 +8,8 @@ Script implementing the optimal r-index experimental pipeline
 
 def remove_files(file_list):
     for file_path in file_list:
-        Path(file_path).unlink(missing_ok=True)
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
